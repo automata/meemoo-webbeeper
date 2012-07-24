@@ -1,0 +1,742 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>WebBeeper</title>
+
+<meta name="author" content="g200kg">
+<meta name="description" content="Polyphonic Beeper by g200kg" />
+
+
+
+
+<script type="text/javascript">
+    var app;
+    var audioif;
+    var canvas;
+    var imgkeys,imgval,imgval2,imgch,imgform,imgpenv,imgenv;
+    var samplerate;
+    var rsamplerate;
+    var outbuf;
+    var outbufsize;
+
+    var prgtable = [
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 16],
+            [1, 1, 25, 100, 1, 25],
+            [1, 2, 25, 100, 1, 25],
+            [0, 0, 50, 100, 0, 50],
+            [1, 0, 50, 25, 0, 50],
+            [2, 0, 50, 25, 0, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+            [0, 0, 50, 0, 0, 50],
+            [1, 0, 50, 0, 0, 50],
+            [2, 0, 50, 0, 0, 50],
+            [3, 0, 50, 0, 0, 50],
+            [4, 0, 50, 0, 0, 50],
+            [0, 0, 50, 0, 1, 50],
+            [1, 0, 50, 0, 1, 50],
+            [2, 0, 50, 0, 1, 50],
+            [3, 0, 50, 0, 1, 50],
+            [4, 0, 50, 0, 1, 50],
+            [0, 1, 50, 0, 1, 50],
+            [1, 1, 50, 0, 1, 50],
+            [2, 1, 50, 0, 1, 50],
+            [3, 1, 50, 0, 1, 50],
+            [4, 1, 50, 0, 1, 50],
+            [0, 1, 50, 100, 1, 50],
+
+        ];
+    // if (window.addEventListener) {
+    //     window.addEventListener("message", webMidiLinkRecv, false);
+    // }
+    // function webMidiLinkRecv(event) {
+    //     var msg = event.data.split(",");
+    //     switch (msg[0]) {
+    //         case "midi":
+    //             var m = parseInt(msg[1], 16);
+    //             switch (m & 0xf0) {
+    //                 case 0x80:
+    //                     app.NoteOff(m & 0xf, parseInt(msg[2], 16));
+    //                     break;
+    //                 case 0x90:
+    //                     var velo = parseInt(msg[3], 16);
+    //                     if (velo > 0)
+    //                         app.NoteOn(m & 0xf, parseInt(msg[2], 16), velo);
+    //                     else
+    //                         app.NoteOff(m & 0xf, parseInt(msg[2], 16));
+    //                     break;
+    //                 case 0xb0:
+    //                     switch (parseInt(msg[2], 16)) {
+    //                         case 7:
+    //                             app.Vol(m & 0xf, parseInt(msg[3], 16));
+    //                             break;
+    //                         case 10:
+    //                             app.Pan(m & 0xf, parseInt(msg[3], 16));
+    //                             break;
+    //                         case 0x78:
+    //                             app.AllSoundOff(m & 0xf);
+    //                             break;
+    //                         case 0x79:
+    //                             app.ResetAllControl(m & 0xf);
+    //                             break;
+    //                     }
+    //                     break;
+    //                 case 0xc0:
+    //                     app.Prg(m & 0xf, parseInt(msg[2], 16));
+    //                     break;
+    //                 case 0xe0:
+    //                     app.Bend(m & 0xf, parseInt(msg[2], 16) + (parseInt(msg[3]// , 16) << 7) - 8192);
+    //                     break;
+    //             }
+    //             break;
+    //     }
+    // }
+    function AudioIf() {
+        this.kcnt = 0;
+        this.start = 0;
+        this.written = 0;
+        this.enable = 0;
+        this.totalwritten = 0;
+        this.count = 0;
+        this.timer = null;
+        if (typeof (webkitAudioContext) != "undefined") {       // Web Audio API
+            this.enable = 2;
+            this.audio = new webkitAudioContext();
+            samplerate = this.audio.sampleRate;
+            outbufsize = 1024;
+        }
+        else if (typeof (Audio) == "function") {
+            this.audio = new Audio();
+            if (typeof (this.audio.mozSetup) == "function") {   // Audio Data API
+                this.enable = 1;
+                samplerate = 44100;
+                outbufsize = 1024;
+            }
+        }
+        if (this.enable == 0) {
+            samplerate = 44100;
+            outbufsize = 4096;
+        }
+        rsamplerate = 1 / samplerate;
+        try {
+            outbuf = new Float32Array(outbufsize * 2);
+        } catch (e) {
+            outbuf = new Array(outbufsize * 2);
+        }
+        for (var i = 0; i < outbufsize * 2; ++i)
+            outbuf[i] = 0;
+        if (this.enable == 1)
+            this.audio.mozSetup(2, samplerate);
+        if (this.enable == 2) {
+            this.jsnode = this.audio.createJavaScriptNode(outbufsize, 2, 2);
+            this.jsnode.onaudioprocess = function(e) {
+                var outl = e.outputBuffer.getChannelData(0);
+                var outr = e.outputBuffer.getChannelData(1);
+                audioif.MakeWave();
+                outl.set(outbuf.subarray(0,outbufsize));
+                outr.set(outbuf.subarray(outbufsize));
+            }
+        }
+        this.Write = function() {
+            if (audioif.enable == 1) {
+                if (audioif.start == 0)
+                    return;
+                var offset = audioif.audio.mozCurrentSampleOffset();
+                if (offset > 0 && audioif.totalwritten > offset + 16384)
+                    return;
+                audioif.MakeWave();
+                var w = audioif.audio.mozWriteAudio(outbuf);
+                audioif.totalwritten += w;
+                audioif.written += w;
+            }
+        }
+        this.Start = function() {
+            this.start = 1;
+            switch (this.enable) {
+                case 1:
+                    if (this.timer == null)
+                        this.timer = setInterval(this.Write, 20);
+                    break;
+                case 2:
+                    this.jsnode.connect(this.audio.destination);
+                    break;
+            }
+        }
+        this.Stop = function() {
+            this.start = 0;
+            switch (this.enable) {
+                case 1:
+                    if (this.timer != null)
+                        clearInterval(this.timer);
+                    break;
+                case 2:
+                    this.jsnode.disconnect(0);
+                    break;
+            }
+        }
+        this.MakeWave = function() {
+            for (var i = 0; i < outbufsize; ++i) {
+                if ((this.kcnt += rsamplerate) >= 0.01) {
+                    this.kcnt -= 0.01;
+                    for (var j = 0; j < 8; ++j)
+                        app.oscs[j].IntProcess();
+                }
+                if (this.enable == 1) {
+                    var i2 = i * 2;
+                    outbuf[i2] = outbuf[i2 + 1] = 0;
+                    for (var j = 0; j < 8; ++j)
+                        app.oscs[j].Process(i * 2, i * 2 + 1);
+                }
+                else {
+                    outbuf[i] = outbuf[i + outbufsize] = 0;
+                    for (var j = 0; j < 8; ++j)
+                        app.oscs[j].Process(i, i + outbufsize);
+                }
+            }
+        }
+    }
+    function Osc() {
+        this.ch = 0;
+        this.note = -1;
+        this.trig = 0;
+        this.freq = 0;
+        this.phase = 0;
+        this.delta = 0;
+        this.curlv = this.lv = 0;
+        this.rate = 0;
+        this.pmod = 1;
+        this.penvcnt = 0;
+        this.envcnt = 15;
+        this.noise = -0.25;
+        this.velo = 0;
+        this.voll = this.volr = 0.5;
+        this.prg = prgtable[0];
+        this.wave = new Array(8);
+        this.penv = new Array(3);
+        this.env = new Array(2);
+        this.wave[0] = [0.25, 0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25];
+        this.wave[1] = [0.25, 0.25, 0.25, 0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25];
+        this.wave[2] = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25];
+        this.wave[3] = [0.0, 0.125, 0.25, 0.375, 0.5, 0.375, 0.25, 0.125, 0, -0.125, -0.25, -0.375, -0.5, -0.375, -0.25, -0.125];
+        this.penv[0] = [16,0,0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25, 0, -0.25, -0.5, -0.75, -1, -0.75, -0.5, -0.25];
+        this.penv[1] = [16,15,-1, -0.93, -0.87, -0.8, -0.73, -0.67, -0.6, -0.53, -0.47, -0.4, -0.3, -0.27, -0.2, -0.13, -0.07, 0];
+        this.penv[2] = [16,15,  1, 0.93, 0.87, 0.8, 0.73, 0.67, 0.6, 0.53, 0.47, 0.4, 0.3, 0.27, 0.2, 0.13, 0.07, 0];
+        this.env[0] = [1,0,1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this.env[1] = [15,15,1, 0.93, 0.87, 0.8, 0.73, 0.67, 0.6, 0.53, 0.47, 0.4, 0.3, 0.27, 0.2, 0.13, 0.07, 0];
+        this.Set = function(ch, n, v) {
+            this.ch = ch;
+            this.note = n;
+            if (n >= 0) {
+                this.velo = v / 128;
+                this.freq = (440 * Math.pow(2, (n - 69) / 12)) / samplerate;
+                this.prg = prgtable[app.chprg[ch] & 0xf];
+                this.rate = Math.pow(1000, this.prg.rate / 128);
+                this.penvcnt = this.envcnt = 0;
+            }
+        }
+        this.IntProcess = function() {
+            this.penvcnt += this.prg[2] * 0.01;
+            while (this.penvcnt >= this.penv[this.prg[1]][0]) {
+                this.penvcnt = this.penvcnt - this.penv[this.prg[1]][0] + this.penv[this.prg[1]][1];
+            }
+            this.pmod = Math.pow(2, this.penv[this.prg[1]][(this.penvcnt + 2) | 0] * this.prg[3] * 0.0078125 + app.chbend[this.ch] / 6);
+            this.delta = this.freq * this.pmod;
+            this.envcnt += this.prg[5] * 0.01;
+
+            if (this.note >= 0) {
+                if (this.envcnt >= this.env[this.prg[4]][0]) {
+                    this.envcnt = this.env[this.prg[4]][1];
+                }
+            }
+
+            if (this.envcnt > 15)
+                this.envcnt = 15;
+            this.lv = this.env[this.prg[4]][Math.floor(this.envcnt + 2)] * this.velo;
+            this.voll = app.chvol[this.ch] * (1 - app.chpan[this.ch]);
+            this.volr = app.chvol[this.ch] * app.chpan[this.ch];
+        }
+        this.Process = function(il, ir) {
+            if (this.curlv > this.lv) {
+                if ((this.curlv -= 0.01) < 0.01)
+                    this.ena = this.curlv = 0;
+            }
+            else if (this.curlv < this.lv) {
+                if ((this.curlv += 0.01) > 0)
+                    this.ena = 1;
+            }
+            if (this.ena > 0) {
+                this.phase += this.delta;
+                if (this.prg[0] == 4) {
+                    while (this.phase >= 0.25) {
+                        this.phase -= 0.25;
+                        this.noise = (Math.random() >= 0.5 ? 0.25 : -0.25);
+                    }
+                    var v = this.noise * this.curlv;
+                    outbuf[il] += v * this.voll;
+                    outbuf[ir] += v * this.volr;
+                }
+                else {
+                    while (this.phase >= 1)
+                        this.phase -= 1;
+                    var v = this.wave[this.prg[0]][(this.phase * 16) | 0] * this.curlv;
+                    outbuf[il] += v * this.voll;
+                    outbuf[ir] += v * this.volr;
+                }
+            }
+        }
+    }
+    function Params() {
+        this.param = new Array();
+        this.drag = -1;
+        this.orgy = this.orgv = 0;
+        this.prg = 0;
+        this.Add = function(n, img, x, y, max) {
+            this.param.push({ pnum: n, img: img, x: x, y: y, max: max });
+        }
+        this.Prg = function(app,n) {
+            this.prg = n;
+            this.Draw(app);
+        }
+        this.Draw = function(app) {
+            var p = prgtable[this.prg];
+            for (var i = 0; i < this.param.length; ++i) {
+                app.ctx.drawImage(this.param[i].img, 0, p[this.param[i].pnum] * 16, 32, 16, this.param[i].x, this.param[i].y, 32, 16);
+            }
+        }
+        this.HitTest = function(x, y) {
+            for (var i = 0; i < this.param.length; ++i) {
+                if (x >= this.param[i].x && x < this.param[i].x + 32 && y >= this.param[i].y && y < this.param[i].y + 16) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        this.MouseDown = function(x, y) {
+            this.drag = this.HitTest(x, y);
+            if (this.drag >= 0) {
+                this.orgy = y;
+                this.orgv = prgtable[this.prg][this.drag];
+            }
+        }
+        this.MouseMove = function(x, y) {
+            if (this.drag >= 0) {
+                var v = (this.orgv - (y - this.orgy) * this.param[this.drag].max * 0.01);
+                if (v < 0)
+                    v = 0;
+                if (v > this.param[this.drag].max - 1)
+                    v = this.param[this.drag].max - 1;
+                prgtable[this.prg][this.drag] = Math.floor(v);
+                this.Draw(app);
+            }
+        }
+        this.MouseUp = function(x, y) {
+            this.drag = -1;
+        }
+    }
+    function App() {
+        this.ctx = canvas.getContext("2d");
+        this.imgkeys = document.getElementById("keys");
+        this.imgval = document.getElementById("val");
+        this.imgval2=document.getElementById("val2");
+        this.imgch = document.getElementById("ch");
+        this.imgform = document.getElementById("form");
+        this.imgpenv = document.getElementById("penv");
+        this.imgenv = document.getElementById("env");
+        this.ctx.drawImage(this.imgkeys, 0, 0);
+        this.oscs = new Array(8);
+        this.chvol = new Array(16);
+        this.chpan = new Array(16);
+        this.chbend = new Array(16);
+        this.chprg = new Array(16);
+        this.mousex = this.mousey = this.mousepress = 0;
+        this.curch = 0;
+        this.orgy = 0;
+        this.orgv = 0;
+        this.lastnote = 0;
+        this.params = new Params();
+        this.params.Add(0, this.imgform, 65, 200,5);
+        this.params.Add(1, this.imgpenv, 115, 200,3);
+        this.params.Add(2, this.imgval2, 150, 200,101);
+        this.params.Add(3, this.imgval2, 185, 200,101);
+        this.params.Add(4, this.imgenv, 240, 200,2);
+        this.params.Add(5, this.imgval2, 275, 200, 101);
+        for (var i = 0; i < 8; ++i) {
+            this.oscs[i] = new Osc();
+        }
+        this.NoteOn = function(ch, n, v) {
+            if (n >= 0 && n < 128) {
+                this.ctx.fillStyle = "#ff0000";
+                this.ctx.fillRect(n * 3 + 16, 64 + ch * 8, 3, 8);
+                for (var i = 0; i < 8; ++i) {
+                    if (this.oscs[i].note < 0) {
+                        this.oscs[i].Set(ch, n, v);
+                        break;
+                    }
+                }
+            }
+        }
+        this.NoteOff = function(ch, n) {
+            if (n >= 0 && n < 128) {
+                this.ctx.drawImage(this.imgkeys, n * 3 + 16, 64 + ch * 8, 3, 8, n * 3 + 16, 64 + ch * 8, 3, 8);
+                for (var i = 0; i < 8; ++i) {
+                    if (this.oscs[i].ch == ch && this.oscs[i].note == n)
+                        this.oscs[i].Set(ch, -1, 0);
+                }
+            }
+        }
+        this.Vol = function(ch, v) {
+            this.ctx.drawImage(this.imgval, 0, v * 8, 16, 8, 400, ch * 8 + 64, 16, 8);
+            this.chvol[ch] = v / 127;
+        }
+        this.Pan = function(ch, v) {
+            this.ctx.drawImage(this.imgval, 0, v * 8, 16, 8, 416, ch * 8 + 64, 16, 8);
+            this.chpan[ch] = v / 127;
+        }
+        this.Bend = function(ch, v) {
+            this.chbend[ch] = v / 8192;
+        }
+        this.Prg = function(ch, p) {
+            this.ctx.drawImage(this.imgval, 0, p * 8, 16, 8, 432, ch * 8 + 64, 16, 8);
+            this.chprg[ch] = p;
+            this.ShowParam();
+        }
+        this.SetCh = function(ch) {
+            this.ctx.drawImage(this.imgkeys, 0, this.curch * 8 + 64, 16, 8, 0, 64 + this.curch * 8, 16, 8);
+            this.ctx.drawImage(this.imgch, 0, ch * 8, 16, 8, 0, 64 + ch * 8, 16, 8);
+            this.curch = ch;
+            this.ShowParam();
+        }
+        this.ShowParam = function() {
+            var prg = this.chprg[this.curch] & 0xf;
+            this.params.Prg(this, prg);
+            this.ctx.drawImage(this.imgval, 0, prg * 8, 16, 8, 40, 200, 16, 8);
+            this.params.Draw(this);
+        }
+        this.AllSoundOff = function(ch) {
+            this.ctx.drawImage(this.imgkeys, 16, 64 + ch * 8, 384, 8, 16, 64 + ch * 8, 384, 8);
+            for (var i = 0; i < 8; ++i) {
+                if (this.oscs[i].note >= 0 && this.oscs[i].ch == ch)
+                    this.oscs[i].Set(ch, -1, 0);
+            }
+        }
+        this.ResetAllControl = function(ch) {
+            for (var i = 0; i < 16; ++i) {
+                this.Vol(i, 64);
+                this.Pan(i, 64);
+                this.Bend(i, 0);
+            }
+        }
+        this.getXY=function(e) {
+            var rc = e.target.getBoundingClientRect();
+            this.mousex = Math.floor(e.clientX - rc.left);
+            this.mousey = Math.floor(e.clientY - rc.top);
+            if (this.mousex < 0) this.mousex = 0;
+            if (this.mousey < 0) this.mousey = 0;
+        }
+        this.MouseDown = function(e) {
+            this.getXY(e);
+            var ch = ((this.mousey - 64) / 8) | 0;
+            this.orgy = this.mousey;
+            if (this.mousey >= 32 && this.mousey < 64 && this.mousex >= 16 && this.mousex < 400) {
+                var n;
+                if (this.mousey <= 52)
+                    n = ((this.mousex - 16) / 3) | 0;
+                else {
+                    n = ((this.mousex - 16) / 5.142857142857143) | 0;
+                    n = ((n / 7) | 0) * 12 + [0, 2, 4, 5, 7, 9, 11][n % 7];
+                }
+                this.lastnote = n;
+                this.NoteOn(this.curch, n, 64);
+                this.mousepress = 4;
+            }
+            if (this.mousey >= 64 && ch >= 0 && ch < 16) {
+                this.SetCh(ch);
+                if (this.mousex >= 16 && this.mousex < 400) {
+                    this.lastnote = ((this.mousex - 16) / 3) | 0;
+                    this.NoteOn(this.curch, this.lastnote, 64);
+                    this.mousepress = 3;
+                }
+                if (this.mousex >= 400 && this.mousex < 416) {
+                    this.orgv = this.chvol[this.curch] * 127;
+                    this.mousepress = 1;
+                }
+                if (this.mousex >= 416 && this.mousex < 432) {
+                    this.orgv = this.chpan[this.curch] * 127;
+                    this.mousepress = 5;
+                }
+                if (this.mousex >= 432 && this.mousex < 448) {
+                    this.orgv = this.chprg[this.curch];
+                    this.mousepress = 2;
+                }
+            }
+            this.params.MouseDown(this.mousex, this.mousey);
+        }
+        this.MouseMove = function(e) {
+            this.getXY(e);
+            switch (this.mousepress) {
+                case 1:
+                    var val = (this.orgv - (this.mousey - this.orgy) * 0.5) | 0;
+                    if (val < 0) val = 0;
+                    if (val > 127) val = 127;
+                    this.Vol(this.curch, val);
+                    break;
+                case 5:
+                    var val = (this.orgv - (this.mousey - this.orgy) * 0.5) | 0;
+                    if (val < 0) val = 0;
+                    if (val > 127) val = 127;
+                    this.Pan(this.curch, val);
+                    break;
+                case 2:
+                    var val = (this.orgv - (this.mousey - this.orgy) * 0.5) | 0;
+                    if (val < 0) val = 0;
+                    if (val > 127) val = 127;
+                    this.Prg(this.curch, val);
+                    break;
+                case 3:
+                    var n = ((this.mousex - 16) / 3) | 0;
+                    var ch = ((this.mousey - 64) / 8) | 0;
+                    if (ch < 0) ch = 0;
+                    if (ch >= 16) ch = 15;
+                    if (n != this.lastnote || ch != this.curch) {
+                        this.NoteOff(this.curch, this.lastnote);
+                        this.SetCh(ch);
+                        this.NoteOn(this.curch, n, 64);
+                        this.lastnote = n;
+                    }
+                    break;
+                case 4:
+                    var n;
+                    if (this.mousey <= 52 || this.mousey >= 64)
+                        n = ((this.mousex - 16) / 3) | 0;
+                    else {
+                        n = ((this.mousex - 16) / 5.142857142857143) | 0;
+                        n = ((n / 7) | 0) * 12 + [0, 2, 4, 5, 7, 9, 11][n % 7];
+                    }
+                    if (n != this.lastnote) {
+                        this.NoteOff(this.curch, this.lastnote);
+                        this.NoteOn(this.curch, n, 64);
+                        this.lastnote = n;
+                    }
+                    break;
+            }
+            this.params.MouseMove(this.mousex, this.mousey);
+        }
+        this.MouseUp = function(e) {
+            if (this.mousepress == 3 || this.mousepress == 4)
+                this.NoteOff(this.curch, this.lastnote);
+            this.mousepress = 0;
+            this.params.MouseUp(this.mousex, this.mousey);
+        }
+        for (var i = 0; i < 16; ++i) {
+            this.Vol(i, 64);
+            this.Pan(i, 64);
+            this.Bend(i, 0);
+            this.Prg(i, i);
+        }
+    }
+    function MouseDown(e) {
+        app.MouseDown(e);
+    }
+    function MouseMove(e) {
+        app.MouseMove(e);
+    }
+    function MouseUp(e) {
+        app.MouseUp(e);
+    }
+    function Init() {
+        canvas = document.getElementById("canvas");
+        audioif = new AudioIf();
+        app = new App();
+        canvas.onmousedown = MouseDown;
+        canvas.onmousemove = MouseMove;
+        canvas.onmouseup = MouseUp;
+        audioif.Start();
+    }
+</script>
+<script src="http://meemoo.org/meemoo/v1/meemoo-min.js"></script>
+</head>
+<body onload="Init()">
+<canvas id="canvas" width="512" height="400">
+</canvas>
+<img id="keys" src="keys.png" width=1 height=1/>
+<img id="val" src="val.png" width=1 height=1 />
+<img id="val2" src="val2.png" width=1 height=1 />
+<img id="ch" src="ch.png" width=1 height=1 />
+<img id="form" src="form.png" width=1 height=1 />
+<img id="penv" src="penv.png" width=1 height=1 />
+<img id="env" src="env.png" width=1 height=1 />
+
+<script type="text/javascript">
+    Meemoo.setInfo({
+      title: "WebBeeper",
+      author: "g200kg",
+      description: "Polyphonic Beeper"
+    }).addInputs({
+      midi: {
+        action: function (v) {
+
+        var msg = v.split(",");
+        switch (msg[0]) {
+            case "midi":
+                var m = parseInt(msg[1], 16);
+                switch (m & 0xf0) {
+                    case 0x80:
+                        app.NoteOff(m & 0xf, parseInt(msg[2], 16));
+                        break;
+                    case 0x90:
+                        var velo = parseInt(msg[3], 16);
+                        if (velo > 0)
+                            app.NoteOn(m & 0xf, parseInt(msg[2], 16), velo);
+                        else
+                            app.NoteOff(m & 0xf, parseInt(msg[2], 16));
+                        break;
+                    case 0xb0:
+                        switch (parseInt(msg[2], 16)) {
+                            case 7:
+                                app.Vol(m & 0xf, parseInt(msg[3], 16));
+                                break;
+                            case 10:
+                                app.Pan(m & 0xf, parseInt(msg[3], 16));
+                                break;
+                            case 0x78:
+                                app.AllSoundOff(m & 0xf);
+                                break;
+                            case 0x79:
+                                app.ResetAllControl(m & 0xf);
+                                break;
+                        }
+                        break;
+                    case 0xc0:
+                        app.Prg(m & 0xf, parseInt(msg[2], 16));
+                        break;
+                    case 0xe0:
+                        app.Bend(m & 0xf, parseInt(msg[2], 16) + (parseInt(msg[3], 16) << 7) - 8192);
+                        break;
+                }
+                break;
+        }
+
+        },
+        type: "midi"
+      }
+    }).addOutputs({
+      midi: {
+        type: "midi"
+      }
+    });
+
+</script>
+
+</body>
+</html>
